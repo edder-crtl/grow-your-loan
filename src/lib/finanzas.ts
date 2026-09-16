@@ -76,7 +76,7 @@ export interface EntradaSimulacion {
 export function simular(entrada: EntradaSimulacion): ResultadoSimulacion {
   const { monto, plazo, tasaMensual, comisionPct, ingresos, gastos, deudaActual } = entrada;
   const tabla = generarTabla(monto, tasaMensual, plazo);
-  const cuotaMensual = tabla.length ? tabla[0].cuota : 0;
+  const cuotaMensual = tabla[0]?.cuota ?? 0;
   const totalPagar = tabla.reduce((acc, f) => acc + f.cuota, 0);
   const totalIntereses = tabla.reduce((acc, f) => acc + f.interes, 0);
   const comisionApertura = monto * comisionPct;
