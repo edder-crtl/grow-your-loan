@@ -195,7 +195,7 @@ function Simulador() {
         <div className="mt-5 grid grid-cols-3 gap-2">
           <div className="rounded-xl bg-paper/10 p-3">
             <p className="font-mono text-[9px] uppercase tracking-wide text-paper/50">CAT</p>
-            <p className="mt-0.5 font-display text-lg font-bold">
+            <p className="mt-0.5 font-display text-[15px] font-bold leading-tight break-all">
               {formatoPct(resultado.costoTotalAnual)}
             </p>
           </div>
@@ -203,13 +203,13 @@ function Simulador() {
             <p className="font-mono text-[9px] uppercase tracking-wide text-paper/50">
               Total a pagar
             </p>
-            <p className="mt-0.5 font-display text-lg font-bold">
+            <p className="mt-0.5 font-display text-[15px] font-bold leading-tight break-all">
               {formatoCOP(resultado.totalPagar)}
             </p>
           </div>
           <div className="rounded-xl bg-accent p-3">
             <p className="font-mono text-[9px] uppercase tracking-wide text-paper/70">Intereses</p>
-            <p className="mt-0.5 font-display text-lg font-bold">
+            <p className="mt-0.5 font-display text-[15px] font-bold leading-tight break-all">
               {formatoCOP(resultado.totalIntereses)}
             </p>
           </div>
