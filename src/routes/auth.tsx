@@ -44,7 +44,10 @@ function Auth() {
     if (modo === "entrar") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setCargando(false);
-      if (error) return toast.error("Correo o contraseña incorrectos");
+      if (error) {
+        toast.error("Correo o contraseña incorrectos");
+        return;
+      }
       toast.success("Bienvenido de vuelta");
       navigate({ to: "/" });
       return;
@@ -58,7 +61,10 @@ function Auth() {
       },
     });
     setCargando(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Cuenta creada. Revisa tu correo para confirmarla.");
   }
 

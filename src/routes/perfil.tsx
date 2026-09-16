@@ -75,7 +75,10 @@ function Perfil() {
       .from("profiles")
       .upsert({ id: user.id, ...form, updated_at: new Date().toISOString() });
     setGuardando(false);
-    if (error) return toast.error("No se pudo guardar el perfil");
+    if (error) {
+      toast.error("No se pudo guardar el perfil");
+      return;
+    }
     toast.success("Perfil financiero actualizado");
   }
 
