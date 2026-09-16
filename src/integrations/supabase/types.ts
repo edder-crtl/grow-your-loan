@@ -14,7 +14,202 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      amortizaciones: {
+        Row: {
+          capital: number
+          created_at: string
+          cuota: number
+          fecha_pago: string | null
+          fecha_vencimiento: string
+          id: string
+          interes: number
+          numero_cuota: number
+          pagada: boolean
+          saldo: number
+          solicitud_id: string
+          user_id: string
+        }
+        Insert: {
+          capital: number
+          created_at?: string
+          cuota: number
+          fecha_pago?: string | null
+          fecha_vencimiento: string
+          id?: string
+          interes: number
+          numero_cuota: number
+          pagada?: boolean
+          saldo: number
+          solicitud_id: string
+          user_id: string
+        }
+        Update: {
+          capital?: number
+          created_at?: string
+          cuota?: number
+          fecha_pago?: string | null
+          fecha_vencimiento?: string
+          id?: string
+          interes?: number
+          numero_cuota?: number
+          pagada?: boolean
+          saldo?: number
+          solicitud_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "amortizaciones_solicitud_id_fkey"
+            columns: ["solicitud_id"]
+            isOneToOne: false
+            referencedRelation: "solicitudes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      productos_financieros: {
+        Row: {
+          activo: boolean
+          comision_apertura_pct: number
+          created_at: string
+          descripcion: string
+          id: string
+          monto_max: number
+          monto_min: number
+          nombre: string
+          plazo_max: number
+          plazo_min: number
+          tasa_mensual: number
+          tasa_mora_mensual: number
+          tipo_tasa: string
+        }
+        Insert: {
+          activo?: boolean
+          comision_apertura_pct?: number
+          created_at?: string
+          descripcion?: string
+          id?: string
+          monto_max: number
+          monto_min: number
+          nombre: string
+          plazo_max?: number
+          plazo_min?: number
+          tasa_mensual: number
+          tasa_mora_mensual?: number
+          tipo_tasa?: string
+        }
+        Update: {
+          activo?: boolean
+          comision_apertura_pct?: number
+          created_at?: string
+          descripcion?: string
+          id?: string
+          monto_max?: number
+          monto_min?: number
+          nombre?: string
+          plazo_max?: number
+          plazo_min?: number
+          tasa_mensual?: number
+          tasa_mora_mensual?: number
+          tipo_tasa?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          antiguedad_laboral_meses: number
+          created_at: string
+          deuda_actual: number
+          gastos_fijos: number
+          id: string
+          ingresos_mensuales: number
+          nombre: string
+          ocupacion: string
+          updated_at: string
+        }
+        Insert: {
+          antiguedad_laboral_meses?: number
+          created_at?: string
+          deuda_actual?: number
+          gastos_fijos?: number
+          id: string
+          ingresos_mensuales?: number
+          nombre?: string
+          ocupacion?: string
+          updated_at?: string
+        }
+        Update: {
+          antiguedad_laboral_meses?: number
+          created_at?: string
+          deuda_actual?: number
+          gastos_fijos?: number
+          id?: string
+          ingresos_mensuales?: number
+          nombre?: string
+          ocupacion?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      solicitudes: {
+        Row: {
+          comision_apertura: number
+          created_at: string
+          cuota_mensual: number
+          estado: string
+          fecha_desembolso: string
+          id: string
+          monto: number
+          plazo_meses: number
+          producto_id: string | null
+          producto_nombre: string
+          tasa_mensual: number
+          total_intereses: number
+          total_pagar: number
+          user_id: string
+        }
+        Insert: {
+          comision_apertura?: number
+          created_at?: string
+          cuota_mensual: number
+          estado?: string
+          fecha_desembolso?: string
+          id?: string
+          monto: number
+          plazo_meses: number
+          producto_id?: string | null
+          producto_nombre?: string
+          tasa_mensual: number
+          total_intereses: number
+          total_pagar: number
+          user_id: string
+        }
+        Update: {
+          comision_apertura?: number
+          created_at?: string
+          cuota_mensual?: number
+          estado?: string
+          fecha_desembolso?: string
+          id?: string
+          monto?: number
+          plazo_meses?: number
+          producto_id?: string | null
+          producto_nombre?: string
+          tasa_mensual?: number
+          total_intereses?: number
+          total_pagar?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solicitudes_producto_id_fkey"
+            columns: ["producto_id"]
+            isOneToOne: false
+            referencedRelation: "productos_financieros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
