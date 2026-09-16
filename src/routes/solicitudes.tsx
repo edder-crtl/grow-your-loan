@@ -23,7 +23,7 @@ export const Route = createFileRoute("/solicitudes")({
       },
     ],
   }),
-  component: Solicitudes;
+  component: Solicitudes,
 });
 
 interface Solicitud {
