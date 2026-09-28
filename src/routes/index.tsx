@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -27,6 +28,8 @@ export const Route = createFileRoute("/")({
         content:
           "Motor de cálculo con amortización cuota a cuota, cartera por edades y planes de refinanciación.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Simulador,
@@ -92,8 +95,6 @@ function Simulador() {
     producto?.plazo_max ?? 72,
   );
 
-  const anguloDial = Math.min(Math.max(resultado.relacionCuotaIngreso / 0.6, 0), 1) * 300;
-
   async function guardar(estado: "Borrador" | "En Revisión") {
     if (!user) {
       toast.error("Inicia sesión para guardar tu simulación");
@@ -148,116 +149,48 @@ function Simulador() {
 
   return (
     <AppShell>
-      <h1 className="sr-only">Simulador de crédito para pequeños negocios en Colombia</h1>
+      <header>
+        <p className="mb-2 text-sm text-ink-soft">Herramientas / Simulador</p>
+        <h1 className="font-display text-2xl font-bold sm:text-3xl">Simula tu crédito</h1>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft">Compara el valor de la cuota con la capacidad real de pago de tu negocio.</p>
+      </header>
 
-      {/* Resultado */}
-      <section className="settle-in rounded-2xl bg-ink p-5 text-paper">
-        <div className="flex items-center justify-between">
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-paper/50">
-            Resultado en tiempo real
-          </p>
-          <span
-            className={`rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wide ${
-              resultado.viable ? "bg-ok/20 text-ok" : "bg-bad/20 text-bad"
-            }`}
-          >
-            {resultado.viable ? "Viable" : "Riesgo alto"}
-          </span>
-        </div>
-        <div className="mt-4 flex items-end justify-between gap-3">
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-paper/50">
-              Cuota mensual
-            </p>
-            <p className="mt-1 font-display text-4xl font-black leading-none tracking-tight">
-              <span className="text-accent">$</span>
-              {formatoCOP(resultado.cuotaMensual, false)}
-            </p>
-          </div>
-          <div className="relative size-24 shrink-0">
-            <div
-              className="dial absolute inset-0 rounded-full"
-              style={{ "--dial-angle": `${anguloDial}deg` } as React.CSSProperties}
-            />
-            <div className="absolute inset-[10px] grid place-items-center rounded-full bg-ink">
-              <div className="text-center">
-                <p className="font-mono text-[8px] uppercase tracking-widest text-paper/50">
-                  Tasa Efectiva
-                </p>
-                <p className="font-display text-lg font-bold leading-none">
-                  {formatoPct(resultado.tasaEfectivaAnual)}
-                </p>
-              </div>
-            </div>
-            <div className="absolute left-1/2 top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent" />
-          </div>
-        </div>
-        <div className="mt-5 grid grid-cols-3 gap-2">
-          <div className="rounded-xl bg-paper/10 p-3">
-            <p className="font-mono text-[9px] uppercase tracking-wide text-paper/50">CAT</p>
-            <p className="mt-0.5 font-display text-[15px] font-bold leading-tight break-all">
-              {formatoPct(resultado.costoTotalAnual)}
-            </p>
-          </div>
-          <div className="rounded-xl bg-paper/10 p-3">
-            <p className="font-mono text-[9px] uppercase tracking-wide text-paper/50">
-              Total a pagar
-            </p>
-            <p className="mt-0.5 font-display text-[15px] font-bold leading-tight break-all">
-              {formatoCOP(resultado.totalPagar)}
-            </p>
-          </div>
-          <div className="rounded-xl bg-accent p-3">
-            <p className="font-mono text-[9px] uppercase tracking-wide text-paper/70">Intereses</p>
-            <p className="mt-0.5 font-display text-[15px] font-bold leading-tight break-all">
-              {formatoCOP(resultado.totalIntereses)}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Producto */}
-      <section className="rise-in rounded-2xl border border-line bg-card p-4">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft">
-          Producto financiero
-        </p>
-        <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(19rem,0.78fr)_minmax(0,1.35fr)]">
+        <div className="space-y-5 lg:sticky lg:top-10">
+          <section className="border border-line bg-card p-5 sm:p-6">
+            <p className="font-mono text-[11px] font-semibold uppercase text-ink-soft">Producto financiero</p>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
           {productos.map((p) => {
             const activo = p.id === producto?.id;
             return (
-              <button
+              <Button
                 key={p.id}
+                type="button"
+                variant="outline"
                 onClick={() => {
                   setProductoId(p.id);
                   setPlazo(Math.min(Math.max(plazo, p.plazo_min), p.plazo_max));
                   setMonto(Math.min(Math.max(monto, Number(p.monto_min)), Number(p.monto_max)));
                 }}
-                className={`shrink-0 rounded-xl border px-3 py-2 text-left ${
-                  activo ? "border-ink bg-ink text-paper" : "border-line bg-paper text-ink"
-                }`}
+                className={`h-auto w-full justify-start whitespace-normal rounded-md px-3 py-3 text-left shadow-none ${activo ? "border-ink bg-ink text-paper hover:bg-ink/90 hover:text-paper" : "border-line bg-card text-ink hover:bg-muted"}`}
               >
-                <span className="block text-xs font-semibold">{p.nombre}</span>
-                <span className="block font-mono text-[10px] opacity-70">
+                <span className="min-w-0"><span className="block text-sm font-semibold">{p.nombre}</span>
+                <span className="mt-1 block font-mono text-[10px] opacity-70">
                   {formatoPct(Number(p.tasa_mensual), 2)} m. · {p.plazo_min}-{p.plazo_max} meses
-                </span>
-              </button>
+                </span></span>
+              </Button>
             );
           })}
-        </div>
-        {producto && (
-          <p className="mt-2 text-xs text-ink-soft">
+            </div>
+          {producto && <p className="mt-4 border-t border-line pt-4 text-xs leading-relaxed text-ink-soft">
             {producto.descripcion} Comisión de apertura{" "}
             {formatoPct(Number(producto.comision_apertura_pct), 1)} · tasa {producto.tipo_tasa}.
-          </p>
-        )}
-      </section>
+          </p>}
+          </section>
 
-      {/* Split: entradas + resumen */}
-      <section className="rise-in grid grid-cols-2 items-start gap-3">
-        <div className="space-y-3">
-          <p className="px-1 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft">
-            Simulación
-          </p>
+          <section className="border border-line bg-card p-5 sm:p-6">
+            <p className="mb-5 font-mono text-[11px] font-semibold uppercase text-ink-soft">Datos de la simulación</p>
+            <div className="space-y-4">
           <Campo
             etiqueta="Monto solicitado"
             valor={monto}
@@ -277,69 +210,41 @@ function Simulador() {
           <Campo etiqueta="Ingresos / mes" valor={ingresos} onChange={setIngresos} prefijo="$" />
           <Campo etiqueta="Gastos / mes" valor={gastos} onChange={setGastos} prefijo="$" />
           <Campo etiqueta="Deudas / mes" valor={deuda} onChange={setDeuda} prefijo="$" />
+            </div>
+          </section>
         </div>
 
-        <div className="space-y-3 rounded-2xl border border-line bg-card p-4">
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft">Resumen</p>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-ink-soft">Capacidad de pago</span>
-            <span className="font-mono text-sm font-bold">
-              {formatoCOP(resultado.capacidadPago, false)}
-            </span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-line">
-            <div
-              className="h-full bg-accent"
-              style={{
-                width: `${Math.min(
-                  (resultado.cuotaMensual / Math.max(resultado.capacidadPago, 1)) * 100,
-                  100,
-                )}%`,
-              }}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-ink-soft">Cuota / ingreso</span>
-            <span
-              className={`font-mono text-sm font-bold ${
-                resultado.relacionCuotaIngreso <= 0.4 ? "text-ok" : "text-bad"
-              }`}
-            >
-              {formatoPct(resultado.relacionCuotaIngreso)}
-            </span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-line">
-            <div
-              className={`h-full ${resultado.relacionCuotaIngreso <= 0.4 ? "bg-ok" : "bg-bad"}`}
-              style={{ width: `${Math.min(resultado.relacionCuotaIngreso * 100, 100)}%` }}
-            />
-          </div>
-          <div className="flex items-center justify-between border-t border-line pt-1">
-            <span className="text-xs font-semibold">Comisión apertura</span>
-            <span className="font-mono text-sm font-bold">
-              {formatoCOP(resultado.comisionApertura, false)}
-            </span>
-          </div>
-          <button
-            disabled={guardando}
-            onClick={() => guardar("En Revisión")}
-            className="mt-1 w-full rounded-xl bg-accent py-3 text-sm font-bold text-paper disabled:opacity-60"
-          >
-            Solicitar crédito
-          </button>
-          <button
-            disabled={guardando}
-            onClick={() => guardar("Borrador")}
-            className="w-full rounded-xl border border-line py-2 text-xs font-semibold text-ink-soft disabled:opacity-60"
-          >
-            Guardar borrador
-          </button>
-        </div>
-      </section>
+        <div className="space-y-6">
+          <section className="settle-in bg-ink p-6 text-paper sm:p-8">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
+              <p className="font-mono text-[11px] font-semibold uppercase text-paper/55">Resultado estimado</p>
+              <span className={`rounded-md px-2 py-1 text-xs font-semibold ${resultado.viable ? "bg-ok/20 text-ok" : "bg-bad/20 text-bad"}`}>{resultado.viable ? "Viable" : "Riesgo alto"}</span>
+            </div>
+            <div className="mt-10">
+              <p className="text-sm text-paper/55">Cuota mensual</p>
+              <p className="mt-2 break-words font-display text-3xl font-bold sm:text-5xl">{formatoCOP(resultado.cuotaMensual)}</p>
+              <p className="mt-3 text-sm text-paper/65">Tasa efectiva anual {formatoPct(resultado.tasaEfectivaAnual)}</p>
+            </div>
+            <dl className="mt-10 divide-y divide-paper/10 border-y border-paper/10">
+              <ResultadoFila etiqueta="Total a pagar" valor={formatoCOP(resultado.totalPagar)} />
+              <ResultadoFila etiqueta="Intereses" valor={formatoCOP(resultado.totalIntereses)} acento />
+              <ResultadoFila etiqueta="Costo total anual" valor={formatoPct(resultado.costoTotalAnual)} />
+              <ResultadoFila etiqueta="Comisión de apertura" valor={formatoCOP(resultado.comisionApertura)} />
+            </dl>
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              <Button disabled={guardando} onClick={() => guardar("En Revisión")} className="h-12 bg-paper font-semibold text-ink hover:bg-paper/90">Solicitar crédito</Button>
+              <Button disabled={guardando} onClick={() => guardar("Borrador")} variant="outline" className="h-12 border-paper/25 bg-transparent text-paper hover:bg-paper/10 hover:text-paper">Guardar borrador</Button>
+            </div>
+          </section>
+
+          <section className="grid gap-4 border border-line bg-card p-5 sm:grid-cols-2 sm:p-6">
+            <div><p className="text-sm text-ink-soft">Capacidad de pago</p><p className="mt-1 font-mono text-xl font-bold">{formatoCOP(resultado.capacidadPago)}</p></div>
+            <div><p className="text-sm text-ink-soft">Cuota sobre ingresos</p><p className={`mt-1 font-mono text-xl font-bold ${resultado.relacionCuotaIngreso <= 0.4 ? "text-ok" : "text-bad"}`}>{formatoPct(resultado.relacionCuotaIngreso)}</p></div>
+          </section>
 
       {/* Refinanciación */}
       {!resultado.viable && (
-        <section className="rise-in rounded-2xl border border-accent/40 bg-accent/8 p-4">
+        <section className="rise-in border-l-4 border-accent bg-card p-5">
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft">
             Plan de refinanciación sugerido
           </p>
@@ -348,12 +253,12 @@ function Simulador() {
             <span className="font-mono font-bold">{refi.plazo} meses</span> por{" "}
             <span className="font-mono font-bold">{formatoCOP(refi.cuota)}</span> al mes.
           </p>
-          <button
+          <Button
             onClick={() => setPlazo(Math.min(refi.plazo, producto?.plazo_max ?? 72))}
-            className="mt-3 rounded-xl bg-ink px-4 py-2 text-xs font-bold text-paper"
+            className="mt-4"
           >
             Aplicar plan
-          </button>
+          </Button>
           {!refi.viable && (
             <p className="mt-2 text-xs text-bad">
               Ni con el plazo máximo la cuota entra en tu capacidad: reduce el monto.
@@ -363,21 +268,21 @@ function Simulador() {
       )}
 
       {/* Amortización */}
-      <section className="rise-in">
+          <section className="rise-in">
         <div className="mb-2 flex items-center justify-between px-1">
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft">
             Amortización
           </p>
           <span className="font-mono text-[10px] text-ink-soft">{plazo} cuotas</span>
         </div>
-        <div className="overflow-hidden rounded-2xl border border-line bg-card">
-          <div className="grid grid-cols-4 bg-ink font-mono text-[10px] uppercase tracking-wide text-paper">
+        <div className="overflow-x-auto border border-line bg-card">
+          <div className="grid min-w-[34rem] grid-cols-4 bg-muted font-mono text-[10px] font-semibold uppercase text-ink-soft">
             <div className="px-3 py-2 text-left">Cuota</div>
             <div className="px-2 py-2 text-right">Cuota</div>
             <div className="px-2 py-2 text-right">Capit.</div>
             <div className="px-3 py-2 text-right">Int.</div>
           </div>
-          <div className="max-h-72 overflow-y-auto">
+          <div className="max-h-80 min-w-[34rem] overflow-y-auto">
             {resultado.tabla.map((f) => (
               <div
                 key={f.numero}
@@ -391,9 +296,15 @@ function Simulador() {
             ))}
           </div>
         </div>
-      </section>
+          </section>
+        </div>
+      </div>
     </AppShell>
   );
+}
+
+function ResultadoFila({ etiqueta, valor, acento = false }: { etiqueta: string; valor: string; acento?: boolean }) {
+  return <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 py-4"><dt className="text-sm text-paper/55">{etiqueta}</dt><dd className={`text-right font-mono text-sm font-semibold ${acento ? "text-ok" : "text-paper"}`}>{valor}</dd></div>;
 }
 
 function Campo({
@@ -416,7 +327,7 @@ function Campo({
   return (
     <label className="block">
       <span className="text-xs font-semibold">{etiqueta}</span>
-      <div className="mt-1 flex items-center rounded-xl border border-line bg-card px-3 py-2">
+      <div className="mt-1.5 flex h-11 items-center rounded-md border border-line bg-paper px-3 focus-within:border-accent">
         {prefijo && <span className="font-mono text-sm text-ink-soft">{prefijo}</span>}
         <input
           type="number"
