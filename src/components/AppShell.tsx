@@ -1,71 +1,99 @@
-import { Link } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { Link, useRouterState } from "@tanstack/react-router";
+import { Calculator, CircleUserRound, Files, LogIn, Menu, PanelLeftClose, PanelLeftOpen, WalletCards } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
 
 const tabs = [
-  { to: "/", label: "Simulador" },
-  { to: "/cartera", label: "Cartera" },
-  { to: "/solicitudes", label: "Solicitudes" },
-  { to: "/perfil", label: "Perfil" },
+  { to: "/", label: "Simulador", icon: Calculator },
+  { to: "/cartera", label: "Cartera", icon: WalletCards },
+  { to: "/solicitudes", label: "Solicitudes", icon: Files },
+  { to: "/perfil", label: "Perfil", icon: CircleUserRound },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const [compacta, setCompacta] = useState(false);
   const iniciales = user?.email?.slice(0, 2).toUpperCase() ?? "MP";
 
   return (
-    <div className="min-h-screen bg-paper pb-12 font-body text-ink">
-      <nav className="sticky top-0 z-20 border-b border-line bg-paper/95 backdrop-blur">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="grid size-8 place-items-center rounded-lg bg-ink">
-              <span className="font-display text-sm font-black leading-none text-paper">$</span>
-            </div>
-            <div className="leading-tight">
-              <p className="font-display text-[15px] font-extrabold tracking-tight">
-                CUENTA<span className="text-accent">CLARA</span>
-              </p>
-              <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-ink-soft">
-                Simulador · pyme
-              </p>
-            </div>
+    <div className="min-h-screen bg-paper font-body text-ink md:flex">
+      <aside className={`hidden shrink-0 border-r border-line bg-card md:sticky md:top-0 md:flex md:h-screen md:flex-col ${compacta ? "w-20" : "w-64"}`}>
+        <div className="flex h-20 items-center justify-between border-b border-line px-5">
+          <Link to="/" className="flex min-w-0 items-center gap-3" aria-label="CuentaClara, inicio">
+            <div className="grid size-9 shrink-0 place-items-center rounded-md bg-ink font-display text-sm font-bold text-paper">$</div>
+            {!compacta && <span className="truncate font-display text-sm font-bold">CUENTA<span className="text-accent">CLARA</span></span>}
           </Link>
-          {user ? (
-            <button
-              onClick={() => supabase.auth.signOut()}
-              title="Cerrar sesión"
-              className="grid size-9 place-items-center rounded-full bg-accent font-mono text-xs font-bold text-paper"
-            >
-              {iniciales}
-            </button>
-          ) : (
-            <Link
-              to="/auth"
-              className="rounded-full border border-line px-3 py-1.5 font-mono text-[11px] font-bold uppercase text-ink-soft"
-            >
-              Entrar
-            </Link>
+          {!compacta && (
+            <Button variant="ghost" size="icon" onClick={() => setCompacta(true)} title="Contraer menú" aria-label="Contraer menú">
+              <PanelLeftClose />
+            </Button>
           )}
         </div>
-        <div className="mx-auto flex max-w-3xl gap-1 overflow-x-auto px-3 pb-2">
-          {tabs.map((t) => (
-            <Link
-              key={t.to}
-              to={t.to}
-              activeOptions={{ exact: t.to === "/" }}
-              className="shrink-0 rounded-full border border-line px-4 py-1.5 text-xs font-medium text-ink-soft"
-              activeProps={{
-                className:
-                  "shrink-0 rounded-full bg-ink border border-ink px-4 py-1.5 text-xs font-semibold text-paper",
-              }}
-            >
-              {t.label}
-            </Link>
-          ))}
+
+        {compacta && (
+          <Button variant="ghost" size="icon" onClick={() => setCompacta(false)} title="Expandir menú" aria-label="Expandir menú" className="mx-auto mt-4">
+            <PanelLeftOpen />
+          </Button>
+        )}
+
+        <nav className="flex-1 space-y-1 px-3 py-6" aria-label="Navegación principal">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const activa = pathname === tab.to;
+            return (
+              <Link key={tab.to} to={tab.to} title={compacta ? tab.label : undefined} className={`flex h-11 items-center gap-3 rounded-md px-3 text-sm transition-colors ${activa ? "bg-ink font-semibold text-paper" : "text-ink-soft hover:bg-muted hover:text-ink"}`}>
+                <Icon className="size-4 shrink-0" />
+                {!compacta && <span>{tab.label}</span>}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="border-t border-line p-3">
+          {user ? (
+            <Button variant="ghost" onClick={() => supabase.auth.signOut()} title="Cerrar sesión" className={`h-11 w-full ${compacta ? "px-0" : "justify-start"}`}>
+              <span className="grid size-7 shrink-0 place-items-center rounded-full bg-accent font-mono text-[10px] font-bold text-paper">{iniciales}</span>
+              {!compacta && <span className="truncate">Cerrar sesión</span>}
+            </Button>
+          ) : (
+            <Button asChild variant="ghost" className={`h-11 w-full ${compacta ? "px-0" : "justify-start"}`}>
+              <Link to="/auth"><LogIn />{!compacta && <span>Entrar</span>}</Link>
+            </Button>
+          )}
         </div>
+      </aside>
+
+      <div className="min-w-0 flex-1 pb-24 md:pb-10">
+        <header className="grid h-16 grid-cols-[minmax(0,1fr)_auto] items-center border-b border-line bg-card px-4 md:hidden">
+          <Link to="/" className="flex min-w-0 items-center gap-2">
+            <div className="grid size-8 shrink-0 place-items-center rounded-md bg-ink font-display text-xs font-bold text-paper">$</div>
+            <span className="truncate font-display text-sm font-bold">CUENTA<span className="text-accent">CLARA</span></span>
+          </Link>
+          {user ? (
+            <Button variant="ghost" size="icon" onClick={() => supabase.auth.signOut()} title="Cerrar sesión" aria-label="Cerrar sesión"><span className="font-mono text-xs">{iniciales}</span></Button>
+          ) : (
+            <Button asChild variant="outline" size="sm"><Link to="/auth">Entrar</Link></Button>
+          )}
+        </header>
+
+        <main className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 md:px-8 md:py-10 lg:px-10">{children}</main>
+      </div>
+
+      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-line bg-card/95 px-2 pb-[max(.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur md:hidden" aria-label="Navegación principal">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const activa = pathname === tab.to;
+          return (
+            <Link key={tab.to} to={tab.to} className={`flex min-w-0 flex-col items-center gap-1 py-1 text-[10px] ${activa ? "font-semibold text-accent" : "text-ink-soft"}`}>
+              <Icon className="size-5 shrink-0" />
+              <span className="truncate">{tab.label}</span>
+            </Link>
+          );
+        })}
       </nav>
-      <main className="mx-auto mt-5 max-w-3xl space-y-5 px-4">{children}</main>
     </div>
   );
 }
