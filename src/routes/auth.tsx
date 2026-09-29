@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/hooks/useAuth";
@@ -20,6 +21,8 @@ export const Route = createFileRoute("/auth")({
         property: "og:description",
         content: "Accede a tus solicitudes de crédito y tu cartera guardada.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Auth,
@@ -82,8 +85,9 @@ function Auth() {
 
   return (
     <AppShell>
-      <section className="settle-in mx-auto max-w-md rounded-2xl border border-line bg-card p-5">
-        <h1 className="font-display text-xl font-extrabold tracking-tight">
+      <section className="settle-in mx-auto max-w-md border border-line bg-card p-6 sm:p-8">
+        <p className="mb-2 text-sm text-ink-soft">CuentaClara</p>
+        <h1 className="font-display text-2xl font-bold">
           {modo === "entrar" ? "Entrar a tu cuenta" : "Crear cuenta"}
         </h1>
         <p className="mt-1 text-xs text-ink-soft">
@@ -97,7 +101,7 @@ function Auth() {
               <input
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm outline-none focus:border-accent"
+                 className="mt-1.5 h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none focus:border-accent"
                 placeholder="Panadería La Espiga"
               />
             </label>
@@ -109,7 +113,7 @@ function Auth() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm outline-none focus:border-accent"
+             className="mt-1.5 h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none focus:border-accent"
               placeholder="tu@correo.com"
             />
           </label>
@@ -121,31 +125,35 @@ function Auth() {
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm outline-none focus:border-accent"
+             className="mt-1.5 h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none focus:border-accent"
             />
           </label>
-          <button
+          <Button
             type="submit"
             disabled={cargando}
-            className="w-full rounded-xl bg-accent py-3 text-sm font-bold text-paper disabled:opacity-60"
+            className="h-11 w-full bg-accent text-paper hover:bg-accent/90"
           >
             {modo === "entrar" ? "Entrar" : "Crear cuenta"}
-          </button>
+          </Button>
         </form>
 
-        <button
+        <Button
+          type="button"
+          variant="outline"
           onClick={google}
-          className="mt-3 w-full rounded-xl border border-line bg-paper py-2.5 text-sm font-semibold"
+          className="mt-3 h-11 w-full bg-paper shadow-none"
         >
           Continuar con Google
-        </button>
+        </Button>
 
-        <button
+        <Button
+          type="button"
+          variant="link"
           onClick={() => setModo(modo === "entrar" ? "registrar" : "entrar")}
-          className="mt-4 w-full text-center font-mono text-[11px] font-bold uppercase text-accent"
+          className="mt-4 w-full font-mono text-[11px] font-bold uppercase text-accent"
         >
           {modo === "entrar" ? "No tengo cuenta" : "Ya tengo cuenta"}
-        </button>
+        </Button>
       </section>
     </AppShell>
   );

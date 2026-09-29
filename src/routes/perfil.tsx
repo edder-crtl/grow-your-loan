@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatoCOP } from "@/lib/finanzas";
@@ -21,6 +22,8 @@ export const Route = createFileRoute("/perfil")({
         property: "og:description",
         content: "Tus datos financieros alimentan el motor de decisión del simulador.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Perfil,
@@ -53,10 +56,11 @@ function Perfil() {
     queryKey: ["perfil", user?.id],
     enabled: !!user,
     queryFn: async () => {
+      if (!user) return VACIO;
       const { data, error } = await supabase
         .from("profiles")
         .select("nombre, ocupacion, ingresos_mensuales, gastos_fijos, deuda_actual, antiguedad_laboral_meses")
-        .eq("id", user!.id)
+        .eq("id", user.id)
         .maybeSingle();
       if (error) throw error;
       return (data ?? VACIO) as PerfilRow;
@@ -90,7 +94,7 @@ function Perfil() {
   if (!user) {
     return (
       <AppShell>
-        <div className="rounded-2xl border border-line bg-card p-5 text-sm">
+        <div className="border border-line bg-card p-5 text-sm">
           Entra a tu cuenta para guardar tu perfil financiero.{" "}
           <Link to="/auth" className="font-bold text-accent">
             Entrar
@@ -102,22 +106,17 @@ function Perfil() {
 
   return (
     <AppShell>
-      <h1 className="font-display text-xl font-extrabold tracking-tight">Perfil financiero</h1>
-      <p className="-mt-3 text-xs text-ink-soft">
+      <header>
+      <p className="mb-2 text-sm text-ink-soft">Cuenta / Perfil financiero</p>
+      <h1 className="font-display text-2xl font-bold sm:text-3xl">Perfil financiero</h1>
+      <p className="mt-2 text-sm text-ink-soft">
         Estos datos alimentan la evaluación de capacidad de pago.
       </p>
+      </header>
 
-      <section className="settle-in rounded-2xl bg-ink p-5 text-paper">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-paper/50">
-          Capacidad de pago mensual
-        </p>
-        <p className="mt-1 font-display text-3xl font-black tracking-tight">
-          <span className="text-accent">$</span>
-          {formatoCOP(capacidad, false)}
-        </p>
-      </section>
-
-      <form onSubmit={guardar} className="rise-in space-y-3 rounded-2xl border border-line bg-card p-4">
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)]">
+      <form onSubmit={guardar} className="rise-in space-y-4 border border-line bg-card p-5 sm:p-6">
+        <div className="grid gap-4 sm:grid-cols-2">
         <Texto
           etiqueta="Nombre o razón social"
           valor={form.nombre}
@@ -128,36 +127,24 @@ function Perfil() {
           valor={form.ocupacion}
           onChange={(v) => setForm({ ...form, ocupacion: v })}
         />
-        <div className="grid grid-cols-2 gap-3">
-          <Numero
-            etiqueta="Ingresos mensuales"
-            valor={form.ingresos_mensuales}
-            onChange={(v) => setForm({ ...form, ingresos_mensuales: v })}
-          />
-          <Numero
-            etiqueta="Gastos fijos"
-            valor={form.gastos_fijos}
-            onChange={(v) => setForm({ ...form, gastos_fijos: v })}
-          />
-          <Numero
-            etiqueta="Cuotas de deuda"
-            valor={form.deuda_actual}
-            onChange={(v) => setForm({ ...form, deuda_actual: v })}
-          />
-          <Numero
-            etiqueta="Antigüedad (meses)"
-            valor={form.antiguedad_laboral_meses}
-            onChange={(v) => setForm({ ...form, antiguedad_laboral_meses: v })}
-          />
+          <Numero etiqueta="Ingresos mensuales" valor={form.ingresos_mensuales} onChange={(v) => setForm({ ...form, ingresos_mensuales: v })} />
+          <Numero etiqueta="Gastos fijos" valor={form.gastos_fijos} onChange={(v) => setForm({ ...form, gastos_fijos: v })} />
+          <Numero etiqueta="Cuotas de deuda" valor={form.deuda_actual} onChange={(v) => setForm({ ...form, deuda_actual: v })} />
+          <Numero etiqueta="Antigüedad (meses)" valor={form.antiguedad_laboral_meses} onChange={(v) => setForm({ ...form, antiguedad_laboral_meses: v })} />
         </div>
-        <button
-          type="submit"
-          disabled={guardando}
-          className="w-full rounded-xl bg-accent py-3 text-sm font-bold text-paper disabled:opacity-60"
-        >
-          Guardar perfil
-        </button>
+        <Button type="submit" disabled={guardando} className="h-11 w-full sm:w-auto">Guardar perfil</Button>
       </form>
+
+      <section className="settle-in bg-ink p-6 text-paper lg:sticky lg:top-10">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-paper/50">
+          Capacidad de pago mensual
+        </p>
+        <p className="mt-4 break-words font-display text-3xl font-bold">
+          {formatoCOP(capacidad)}
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-paper/55">Disponible después de gastos fijos y cuotas de deuda registradas.</p>
+      </section>
+      </div>
     </AppShell>
   );
 }
@@ -177,7 +164,7 @@ function Texto({
       <input
         value={valor}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2 text-sm outline-none focus:border-accent"
+        className="mt-1.5 h-11 w-full rounded-md border border-line bg-paper px-3 text-sm outline-none focus:border-accent"
       />
     </label>
   );
@@ -199,7 +186,7 @@ function Numero({
         type="number"
         value={valor}
         onChange={(e) => onChange(Number(e.target.value) || 0)}
-        className="mt-1 w-full rounded-xl border border-line bg-paper px-3 py-2 font-mono text-sm font-bold outline-none focus:border-accent"
+        className="mt-1.5 h-11 w-full rounded-md border border-line bg-paper px-3 font-mono text-sm font-bold outline-none focus:border-accent"
       />
     </label>
   );
