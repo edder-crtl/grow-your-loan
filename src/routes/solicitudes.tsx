@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ESTADO_CLASES, formatoCOP, formatoPct, type EstadoSolicitud } from "@/lib/finanzas";
@@ -21,6 +22,8 @@ export const Route = createFileRoute("/solicitudes")({
         property: "og:description",
         content: "Consulta, cambia el estado y revisa las cuotas de cada solicitud guardada.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Solicitudes,
@@ -63,10 +66,11 @@ function Solicitudes() {
     queryKey: ["amortizacion", abierta],
     enabled: !!abierta,
     queryFn: async () => {
+      if (!abierta) return [];
       const { data, error } = await supabase
         .from("amortizaciones")
         .select("numero_cuota, fecha_vencimiento, cuota, capital, interes, saldo")
-        .eq("solicitud_id", abierta!)
+        .eq("solicitud_id", abierta)
         .order("numero_cuota");
       if (error) throw error;
       return data ?? [];
@@ -98,13 +102,16 @@ function Solicitudes() {
 
   return (
     <AppShell>
-      <h1 className="font-display text-xl font-extrabold tracking-tight">Solicitudes</h1>
-      <p className="-mt-3 text-xs text-ink-soft">
+      <header>
+      <p className="mb-2 text-sm text-ink-soft">Gestión / Solicitudes</p>
+      <h1 className="font-display text-2xl font-bold sm:text-3xl">Solicitudes</h1>
+      <p className="mt-2 text-sm text-ink-soft">
         Expediente de cada simulación con su estado y su tabla de cuotas.
       </p>
+      </header>
 
       {!user && (
-        <div className="rounded-2xl border border-line bg-card p-5 text-sm">
+        <div className="border border-line bg-card p-5 text-sm">
           Entra a tu cuenta para ver tus solicitudes guardadas.{" "}
           <Link to="/auth" className="font-bold text-accent">
             Entrar
@@ -115,7 +122,7 @@ function Solicitudes() {
       {user && isLoading && <p className="font-mono text-xs text-ink-soft">Cargando…</p>}
 
       {user && !isLoading && solicitudes.length === 0 && (
-        <div className="rounded-2xl border border-line bg-card p-5 text-sm">
+        <div className="border border-line bg-card p-5 text-sm">
           Todavía no guardas ninguna simulación.{" "}
           <Link to="/" className="font-bold text-accent">
             Simular un crédito
@@ -124,9 +131,9 @@ function Solicitudes() {
       )}
 
       {solicitudes.map((s) => (
-        <section key={s.id} className="rise-in rounded-2xl border border-line bg-card">
-          <div className="flex items-center gap-3 p-4">
-            <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-ink">
+        <section key={s.id} className="rise-in border border-line bg-card">
+          <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 p-4 sm:p-5">
+            <div className="grid size-10 shrink-0 place-items-center rounded-md bg-ink">
               <span className="font-mono text-xs font-bold text-paper">
                 {s.producto_nombre.slice(0, 2).toUpperCase()}
               </span>
@@ -139,7 +146,7 @@ function Solicitudes() {
               </p>
             </div>
             <span
-              className={`shrink-0 rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase ${ESTADO_CLASES[s.estado]}`}
+              className={`shrink-0 rounded-md px-2.5 py-1 font-mono text-[10px] font-bold uppercase ${ESTADO_CLASES[s.estado]}`}
             >
               {s.estado}
             </span>
@@ -162,39 +169,46 @@ function Solicitudes() {
 
           <div className="flex flex-wrap items-center gap-1 border-t border-line px-4 py-3">
             {ESTADOS.map((e) => (
-              <button
+              <Button
                 key={e}
+                type="button"
+                variant={s.estado === e ? "default" : "outline"}
+                size="sm"
                 onClick={() => cambiarEstado.mutate({ id: s.id, estado: e })}
-                className={`rounded-full px-3 py-1 text-[11px] font-semibold ${
-                  s.estado === e ? "bg-ink text-paper" : "border border-line text-ink-soft"
-                }`}
+                className="h-8 text-[11px] shadow-none"
               >
                 {e}
-              </button>
+              </Button>
             ))}
-            <button
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
               onClick={() => setAbierta(abierta === s.id ? null : s.id)}
               className="ml-auto font-mono text-[11px] font-bold text-accent"
             >
               {abierta === s.id ? "Ocultar cuotas" : "Ver cuotas"}
-            </button>
-            <button
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
               onClick={() => eliminar.mutate(s.id)}
               className="font-mono text-[11px] font-bold text-bad"
             >
               Eliminar
-            </button>
+            </Button>
           </div>
 
           {abierta === s.id && (
-            <div className="border-t border-line">
-              <div className="grid grid-cols-4 bg-ink font-mono text-[10px] uppercase tracking-wide text-paper">
+            <div className="overflow-x-auto border-t border-line">
+              <div className="grid min-w-[32rem] grid-cols-4 bg-muted font-mono text-[10px] font-semibold uppercase text-ink-soft">
                 <div className="px-3 py-2">Cuota</div>
                 <div className="px-2 py-2 text-right">Valor</div>
                 <div className="px-2 py-2 text-right">Capit.</div>
                 <div className="px-3 py-2 text-right">Saldo</div>
               </div>
-              <div className="max-h-64 overflow-y-auto">
+              <div className="max-h-64 min-w-[32rem] overflow-y-auto">
                 {cuotas.map((c) => (
                   <div
                     key={c.numero_cuota}

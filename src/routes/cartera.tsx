@@ -25,6 +25,8 @@ export const Route = createFileRoute("/cartera")({
         property: "og:description",
         content: "Seguimiento de cuotas vencidas, recargos y reprogramación de compromisos.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Cartera,
@@ -66,13 +68,16 @@ function Cartera() {
 
   return (
     <AppShell>
-      <h1 className="font-display text-xl font-extrabold tracking-tight">Cartera por edades</h1>
-      <p className="-mt-3 text-xs text-ink-soft">
+      <header>
+      <p className="mb-2 text-sm text-ink-soft">Gestión / Cartera</p>
+      <h1 className="font-display text-2xl font-bold sm:text-3xl">Cartera por edades</h1>
+      <p className="mt-2 text-sm text-ink-soft">
         Clasificación automática de cuotas pendientes y cálculo de intereses de mora.
       </p>
+      </header>
 
       {!user && (
-        <div className="rounded-2xl border border-line bg-card p-5 text-sm">
+        <div className="border border-line bg-card p-5 text-sm">
           Entra a tu cuenta para ver la cartera de tus créditos guardados.{" "}
           <Link to="/auth" className="font-bold text-accent">
             Entrar
@@ -84,15 +89,15 @@ function Cartera() {
 
       {user && !isLoading && (
         <>
-          <section className="rise-in grid grid-cols-2 gap-3">
+           <section className="rise-in grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {buckets.map((b) => (
-              <div key={b.bucket} className="rounded-2xl border border-line bg-card p-4">
+              <div key={b.bucket} className="border border-line bg-card p-5">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-[10px] uppercase tracking-wide text-ink-soft">
                     {b.bucket}
                   </span>
                   <span
-                    className={`rounded-full px-2 py-0.5 font-mono text-[10px] font-bold ${ESTILO_BUCKET[b.bucket].chip}`}
+                    className={`rounded-md px-2 py-0.5 font-mono text-[10px] font-bold ${ESTILO_BUCKET[b.bucket].chip}`}
                   >
                     {ESTILO_BUCKET[b.bucket].texto}
                   </span>
@@ -115,7 +120,7 @@ function Cartera() {
               </p>
               <span className="font-mono text-[10px] text-ink-soft">Recargos aplicados</span>
             </div>
-            <div className="divide-y divide-line rounded-2xl border border-line bg-card">
+            <div className="divide-y divide-line border border-line bg-card">
               {vencidas.length === 0 && (
                 <p className="p-4 text-sm text-ink-soft">
                   No tienes cuotas vencidas. Tu cartera está corriente.
@@ -124,8 +129,8 @@ function Cartera() {
               {vencidas.map((c, i) => {
                 const dias = diasMora(c.fecha_vencimiento);
                 return (
-                  <div key={i} className="flex items-center gap-3 p-4">
-                    <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-ink">
+                  <div key={i} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 p-4">
+                    <div className="grid size-10 shrink-0 place-items-center rounded-md bg-ink">
                       <span className="font-mono text-xs font-bold text-paper">{dias}d</span>
                     </div>
                     <div className="min-w-0 flex-1">
@@ -140,7 +145,7 @@ function Cartera() {
                         )}
                       </p>
                     </div>
-                    <span className="shrink-0 rounded-full bg-bad/15 px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-bad">
+                    <span className="shrink-0 rounded-md bg-bad/15 px-2.5 py-1 font-mono text-[10px] font-bold uppercase text-bad">
                       Vencida
                     </span>
                   </div>
@@ -150,7 +155,7 @@ function Cartera() {
           </section>
 
           {saldoVencido > 0 && (
-            <section className="rise-in rounded-2xl border border-accent/40 bg-accent/8 p-4">
+            <section className="rise-in border-l-4 border-accent bg-card p-5">
               <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft">
                 Refinanciación de la cartera vencida
               </p>
