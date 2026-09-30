@@ -22,6 +22,14 @@ export interface ResultadoSimulacion {
   tabla: CuotaAmortizacion[];
 }
 
+export type NivelConsejo = "positivo" | "precaucion" | "alerta";
+
+export interface RecomendacionSimulacion {
+  nivel: NivelConsejo;
+  titulo: string;
+  detalle: string;
+}
+
 export const formatoCOP = (valor: number, conSimbolo = true) =>
   new Intl.NumberFormat("es-CO", {
     style: conSimbolo ? "currency" : "decimal",
@@ -100,6 +108,67 @@ export function simular(entrada: EntradaSimulacion): ResultadoSimulacion {
     viable: cuotaMensual > 0 && cuotaMensual <= capacidadPago && relacionCuotaIngreso <= 0.4,
     tabla,
   };
+}
+
+/** Orientación sencilla derivada de la simulación; no reemplaza asesoría financiera. */
+export function recomendarSimulacion(
+  entrada: EntradaSimulacion,
+  resultado: ResultadoSimulacion,
+): RecomendacionSimulacion[] {
+  const recomendaciones: RecomendacionSimulacion[] = [];
+  const dineroLibre = Math.max(entrada.ingresos - entrada.gastos - entrada.deudaActual, 0);
+  const restanteDespuesCuota = dineroLibre - resultado.cuotaMensual;
+  const proporcionIntereses = entrada.monto > 0 ? resultado.totalIntereses / entrada.monto : 0;
+
+  if (resultado.relacionCuotaIngreso <= 0.25 && resultado.cuotaMensual <= dineroLibre) {
+    recomendaciones.push({
+      nivel: "positivo",
+      titulo: "La cuota se ve manejable",
+      detalle: "Usaría una parte moderada de tus ingresos. Aun así, deja espacio para imprevistos antes de solicitar.",
+    });
+  } else if (resultado.relacionCuotaIngreso <= 0.4 && resultado.cuotaMensual <= dineroLibre) {
+    recomendaciones.push({
+      nivel: "precaucion",
+      titulo: "La cuota cabe, pero exige disciplina",
+      detalle: "Separa el dinero de la cuota al recibir tus ingresos y evita asumir otra deuda durante este plazo.",
+    });
+  } else {
+    recomendaciones.push({
+      nivel: "alerta",
+      titulo: "Esta cuota puede apretar tu presupuesto",
+      detalle: "Prueba pedir menos dinero, ampliar el plazo o reducir gastos antes de asumir el compromiso.",
+    });
+  }
+
+  if (restanteDespuesCuota < entrada.ingresos * 0.1) {
+    recomendaciones.push({
+      nivel: "alerta",
+      titulo: "Te quedaría poco margen para emergencias",
+      detalle: "Busca que después de pagar gastos, deudas y esta cuota todavía quede al menos 10% de tus ingresos.",
+    });
+  } else {
+    recomendaciones.push({
+      nivel: "positivo",
+      titulo: "Conservas un margen mensual",
+      detalle: `Después de tus compromisos te quedarían cerca de ${formatoCOP(restanteDespuesCuota)} al mes. Protege una parte como ahorro.`,
+    });
+  }
+
+  if (proporcionIntereses >= 0.35) {
+    recomendaciones.push({
+      nivel: "precaucion",
+      titulo: "El plazo aumenta bastante el costo",
+      detalle: "Compara un plazo más corto: la cuota sube, pero podrías pagar mucho menos en intereses.",
+    });
+  } else {
+    recomendaciones.push({
+      nivel: "positivo",
+      titulo: "El costo está relativamente contenido",
+      detalle: "Compara esta opción con al menos dos entidades y pregunta siempre por seguros y cobros adicionales.",
+    });
+  }
+
+  return recomendaciones;
 }
 
 /** Plan de refinanciación: alarga el plazo hasta que la cuota entre en la capacidad de pago. */

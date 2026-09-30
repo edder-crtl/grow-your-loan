@@ -10,8 +10,10 @@ import {
   formatoCOP,
   formatoPct,
   planRefinanciacion,
+  recomendarSimulacion,
   simular,
 } from "@/lib/finanzas";
+import { AlertTriangle, CheckCircle2, Info } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -95,6 +97,23 @@ function Simulador() {
     producto?.plazo_max ?? 72,
   );
 
+  const recomendaciones = useMemo(
+    () =>
+      recomendarSimulacion(
+        {
+          monto,
+          plazo,
+          tasaMensual: Number(producto?.tasa_mensual ?? 0.0215),
+          comisionPct: Number(producto?.comision_apertura_pct ?? 0.02),
+          ingresos,
+          gastos,
+          deudaActual: deuda,
+        },
+        resultado,
+      ),
+    [monto, plazo, producto, ingresos, gastos, deuda, resultado],
+  );
+
   async function guardar(estado: "Borrador" | "En Revisión") {
     if (!user) {
       toast.error("Inicia sesión para guardar tu simulación");
@@ -150,15 +169,15 @@ function Simulador() {
   return (
     <AppShell>
       <header>
-        <p className="mb-2 text-sm text-ink-soft">Herramientas / Simulador</p>
-        <h1 className="font-display text-2xl font-bold sm:text-3xl">Simula tu crédito</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft">Compara el valor de la cuota con la capacidad real de pago de tu negocio.</p>
+        <p className="mb-2 text-sm text-ink-soft">Inicio / Simulador</p>
+        <h1 className="font-display text-2xl font-bold sm:text-3xl">¿Este crédito cabe en tu bolsillo?</h1>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft">Cuéntanos cuánto necesitas y cómo están tus finanzas. Te mostramos la cuota y qué tan cómoda sería para ti.</p>
       </header>
 
       <div className="grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(19rem,0.78fr)_minmax(0,1.35fr)]">
         <div className="min-w-0 space-y-5 lg:sticky lg:top-10">
           <section className="border border-line bg-card p-5 sm:p-6">
-            <p className="font-mono text-[11px] font-semibold uppercase text-ink-soft">Producto financiero</p>
+            <p className="font-mono text-[11px] font-semibold uppercase text-ink-soft">Elige un tipo de crédito</p>
             <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
           {productos.map((p) => {
             const activo = p.id === producto?.id;
@@ -189,7 +208,7 @@ function Simulador() {
           </section>
 
           <section className="border border-line bg-card p-5 sm:p-6">
-            <p className="mb-5 font-mono text-[11px] font-semibold uppercase text-ink-soft">Datos de la simulación</p>
+            <p className="mb-5 font-mono text-[11px] font-semibold uppercase text-ink-soft">Cuéntanos sobre tu presupuesto</p>
             <div className="space-y-4">
           <Campo
             etiqueta="Monto solicitado"
@@ -207,9 +226,9 @@ function Simulador() {
             max={producto?.plazo_max ?? 72}
             sufijo="meses"
           />
-          <Campo etiqueta="Ingresos / mes" valor={ingresos} onChange={setIngresos} prefijo="$" />
-          <Campo etiqueta="Gastos / mes" valor={gastos} onChange={setGastos} prefijo="$" />
-          <Campo etiqueta="Deudas / mes" valor={deuda} onChange={setDeuda} prefijo="$" />
+          <Campo etiqueta="Lo que recibes cada mes" valor={ingresos} onChange={setIngresos} prefijo="$" />
+          <Campo etiqueta="Lo que gastas cada mes" valor={gastos} onChange={setGastos} prefijo="$" />
+          <Campo etiqueta="Cuotas de otras deudas" valor={deuda} onChange={setDeuda} prefijo="$" />
             </div>
           </section>
         </div>
@@ -218,7 +237,7 @@ function Simulador() {
           <section className="settle-in bg-ink p-6 text-paper sm:p-8">
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
               <p className="font-mono text-[11px] font-semibold uppercase text-paper/55">Resultado estimado</p>
-              <span className={`rounded-md px-2 py-1 text-xs font-semibold ${resultado.viable ? "bg-ok/20 text-ok" : "bg-bad/20 text-bad"}`}>{resultado.viable ? "Viable" : "Riesgo alto"}</span>
+              <span className={`rounded-md px-2 py-1 text-xs font-semibold ${resultado.viable ? "bg-ok/20 text-ok" : "bg-bad/20 text-bad"}`}>{resultado.viable ? "Cabe en tu presupuesto" : "Puede ser difícil de pagar"}</span>
             </div>
             <div className="mt-10">
               <p className="text-sm text-paper/55">Cuota mensual</p>
@@ -227,9 +246,9 @@ function Simulador() {
             </div>
             <dl className="mt-10 divide-y divide-paper/10 border-y border-paper/10">
               <ResultadoFila etiqueta="Total a pagar" valor={formatoCOP(resultado.totalPagar)} />
-              <ResultadoFila etiqueta="Intereses" valor={formatoCOP(resultado.totalIntereses)} acento />
-              <ResultadoFila etiqueta="Costo total anual" valor={formatoPct(resultado.costoTotalAnual)} />
-              <ResultadoFila etiqueta="Comisión de apertura" valor={formatoCOP(resultado.comisionApertura)} />
+              <ResultadoFila etiqueta="Lo que pagarías solo en intereses" valor={formatoCOP(resultado.totalIntereses)} acento />
+              <ResultadoFila etiqueta="Costo anual aproximado" valor={formatoPct(resultado.costoTotalAnual)} />
+              <ResultadoFila etiqueta="Cobro al abrir el crédito" valor={formatoCOP(resultado.comisionApertura)} />
             </dl>
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               <Button disabled={guardando} onClick={() => guardar("En Revisión")} className="h-12 bg-paper font-semibold text-ink hover:bg-paper/90">Solicitar crédito</Button>
@@ -238,15 +257,40 @@ function Simulador() {
           </section>
 
           <section className="grid gap-4 border border-line bg-card p-5 sm:grid-cols-2 sm:p-6">
-            <div><p className="text-sm text-ink-soft">Capacidad de pago</p><p className="mt-1 font-mono text-xl font-bold">{formatoCOP(resultado.capacidadPago)}</p></div>
-            <div><p className="text-sm text-ink-soft">Cuota sobre ingresos</p><p className={`mt-1 font-mono text-xl font-bold ${resultado.relacionCuotaIngreso <= 0.4 ? "text-ok" : "text-bad"}`}>{formatoPct(resultado.relacionCuotaIngreso)}</p></div>
+            <div><p className="text-sm text-ink-soft">Dinero libre antes de esta cuota</p><p className="mt-1 font-mono text-xl font-bold">{formatoCOP(resultado.capacidadPago)}</p></div>
+            <div><p className="text-sm text-ink-soft">Parte de tus ingresos para la cuota</p><p className={`mt-1 font-mono text-xl font-bold ${resultado.relacionCuotaIngreso <= 0.4 ? "text-ok" : "text-bad"}`}>{formatoPct(resultado.relacionCuotaIngreso)}</p></div>
+          </section>
+
+          <section className="border border-line bg-card p-5 sm:p-6" aria-labelledby="recomendaciones-titulo">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="font-mono text-[11px] font-semibold uppercase text-ink-soft">Orientación para decidir</p>
+                <h2 id="recomendaciones-titulo" className="mt-1 font-display text-xl font-bold">Recomendaciones para ti</h2>
+              </div>
+              <Info className="mt-1 size-5 shrink-0 text-accent-2" aria-hidden="true" />
+            </div>
+            <div className="mt-5 divide-y divide-line border-y border-line">
+              {recomendaciones.map((recomendacion) => {
+                const Icon = recomendacion.nivel === "positivo" ? CheckCircle2 : AlertTriangle;
+                return (
+                  <article key={recomendacion.titulo} className="grid grid-cols-[auto_minmax(0,1fr)] gap-3 py-4">
+                    <Icon className={`mt-0.5 size-5 ${recomendacion.nivel === "positivo" ? "text-ok" : recomendacion.nivel === "alerta" ? "text-bad" : "text-accent"}`} aria-hidden="true" />
+                    <div>
+                      <h3 className="text-sm font-semibold">{recomendacion.titulo}</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-ink-soft">{recomendacion.detalle}</p>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+            <p className="mt-4 text-xs leading-relaxed text-ink-soft">Esta orientación es educativa. La aprobación y las condiciones finales dependen de la entidad que ofrece el crédito.</p>
           </section>
 
       {/* Refinanciación */}
       {!resultado.viable && (
         <section className="rise-in border-l-4 border-accent bg-card p-5">
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft">
-            Plan de refinanciación sugerido
+             Una opción para bajar la cuota
           </p>
           <p className="mt-2 text-sm">
             Con tu capacidad de pago actual, la cuota cabe a{" "}
@@ -261,7 +305,7 @@ function Simulador() {
           </Button>
           {!refi.viable && (
             <p className="mt-2 text-xs text-bad">
-              Ni con el plazo máximo la cuota entra en tu capacidad: reduce el monto.
+               Incluso con el plazo más largo la cuota sigue alta. Intenta pedir un monto menor.
             </p>
           )}
         </section>
@@ -271,7 +315,7 @@ function Simulador() {
           <section className="rise-in">
         <div className="mb-2 flex items-center justify-between px-1">
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-soft">
-            Amortización
+             Cómo se pagaría mes a mes
           </p>
           <span className="font-mono text-[10px] text-ink-soft">{plazo} cuotas</span>
         </div>
@@ -279,8 +323,8 @@ function Simulador() {
           <div className="grid min-w-[34rem] grid-cols-4 bg-muted font-mono text-[10px] font-semibold uppercase text-ink-soft">
             <div className="px-3 py-2 text-left">Cuota</div>
             <div className="px-2 py-2 text-right">Cuota</div>
-            <div className="px-2 py-2 text-right">Capit.</div>
-            <div className="px-3 py-2 text-right">Int.</div>
+             <div className="px-2 py-2 text-right">A la deuda</div>
+             <div className="px-3 py-2 text-right">Interés</div>
           </div>
           <div className="max-h-80 min-w-[34rem] overflow-y-auto">
             {resultado.tabla.map((f) => (

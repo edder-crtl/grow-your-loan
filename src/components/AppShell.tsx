@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Calculator, CircleUserRound, Files, LogIn, Menu, PanelLeftClose, PanelLeftOpen, WalletCards } from "lucide-react";
+import { Calculator, CircleUserRound, Files, Lightbulb, LogIn, PanelLeftClose, PanelLeftOpen, WalletCards } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,6 +9,7 @@ const tabs = [
   { to: "/", label: "Simulador", icon: Calculator },
   { to: "/cartera", label: "Cartera", icon: WalletCards },
   { to: "/solicitudes", label: "Solicitudes", icon: Files },
+  { to: "/consejos", label: "Consejos", icon: Lightbulb },
   { to: "/perfil", label: "Perfil", icon: CircleUserRound },
 ] as const;
 
@@ -82,7 +83,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 md:px-8 md:py-10 lg:px-10">{children}</main>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-line bg-card/95 px-2 pb-[max(.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur md:hidden" aria-label="Navegación principal">
+      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-card/95 px-1 pb-[max(.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur md:hidden" aria-label="Navegación principal">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const activa = pathname === tab.to;
