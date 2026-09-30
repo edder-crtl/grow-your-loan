@@ -11,3 +11,4 @@
 
 - Use a responsive application shell: collapsible sidebar on desktop and fixed bottom navigation on mobile, because financial workflows need persistent navigation without reducing small-screen space.
 - Use JetBrains Mono for headings/data and Work Sans for body copy with the gray-finance token palette, because the selected direction should feel technical, restrained, and human.
+- Explain financial results in plain Colombian Spanish and derive guidance from simulation inputs, because the app serves people without financial training.
