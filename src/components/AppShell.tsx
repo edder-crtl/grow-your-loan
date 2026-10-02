@@ -23,7 +23,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-paper font-body text-ink md:flex">
       <aside className={`hidden shrink-0 border-r border-line bg-card md:sticky md:top-0 md:flex md:h-screen md:flex-col ${compacta ? "w-20" : "w-64"}`}>
         <div className="flex h-20 items-center justify-between border-b border-line px-5">
-          <Link to="/" className="flex min-w-0 items-center gap-3" aria-label="CuentaClara, inicio">
+          <Link to="/" className="flex min-w-0 items-center gap-3" aria-label="CUENTACLARA, inicio">
             <div className="grid size-9 shrink-0 place-items-center rounded-md bg-ink font-display text-sm font-bold text-paper">$</div>
             {!compacta && <span className="truncate font-display text-sm font-bold">CUENTA<span className="text-accent">CLARA</span></span>}
           </Link>

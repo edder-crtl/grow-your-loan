@@ -14,13 +14,13 @@ import {
 export const Route = createFileRoute("/cartera")({
   head: () => ({
     meta: [
-      { title: "Cartera por edades y mora — CuentaClara" },
+      { title: "Cartera por edades y mora — CUENTACLARA" },
       {
         name: "description",
         content:
           "Clasifica tu cartera en corriente, 30, 60 y 90+ días, con intereses de mora calculados y plan de refinanciación.",
       },
-      { property: "og:title", content: "Cartera por edades y mora — CuentaClara" },
+      { property: "og:title", content: "Cartera por edades y mora — CUENTACLARA" },
       {
         property: "og:description",
         content: "Seguimiento de cuotas vencidas, recargos y reprogramación de compromisos.",

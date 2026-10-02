@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/consejos")({
   head: () => ({
     meta: [
-      { title: "Consejos para cuidar tu dinero — CuentaClara" },
+      { title: "Consejos para cuidar tu dinero — CUENTACLARA" },
       {
         name: "description",
         content: "Consejos sencillos para organizar tus gastos, ahorrar, comparar créditos y evitar el sobreendeudamiento en Colombia.",
       },
-      { property: "og:title", content: "Consejos para cuidar tu dinero — CuentaClara" },
+      { property: "og:title", content: "Consejos para cuidar tu dinero — CUENTACLARA" },
       {
         property: "og:description",
         content: "Hábitos prácticos para tomar mejores decisiones con tu dinero y tus créditos.",

@@ -11,13 +11,13 @@ import { formatoCOP } from "@/lib/finanzas";
 export const Route = createFileRoute("/perfil")({
   head: () => ({
     meta: [
-      { title: "Perfil financiero — CuentaClara" },
+      { title: "Perfil financiero — CUENTACLARA" },
       {
         name: "description",
         content:
           "Registra ingresos, gastos fijos, deudas y antigüedad laboral para evaluar tu capacidad de endeudamiento.",
       },
-      { property: "og:title", content: "Perfil financiero — CuentaClara" },
+      { property: "og:title", content: "Perfil financiero — CUENTACLARA" },
       {
         property: "og:description",
         content: "Tus datos financieros alimentan el motor de decisión del simulador.",

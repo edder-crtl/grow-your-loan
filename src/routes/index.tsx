@@ -18,13 +18,13 @@ import { AlertTriangle, CheckCircle2, Info } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CuentaClara — Simulador de crédito para pymes en Colombia" },
+      { title: "CUENTACLARA — Simulador de crédito para pymes en Colombia" },
       {
         name: "description",
         content:
           "Simula tu crédito en pesos: cuota mensual, tasa efectiva, tabla de amortización y capacidad de pago real para negocios colombianos.",
       },
-      { property: "og:title", content: "CuentaClara — Simulador de crédito para pymes" },
+      { property: "og:title", content: "CUENTACLARA — Simulador de crédito para pymes" },
       {
         property: "og:description",
         content:

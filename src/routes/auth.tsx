@@ -10,13 +10,13 @@ import { useAuth } from "@/hooks/useAuth";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar — CuentaClara" },
+      { title: "Entrar — CUENTACLARA" },
       {
         name: "description",
         content:
           "Ingresa o crea tu cuenta para guardar simulaciones, solicitudes y tablas de amortización.",
       },
-      { property: "og:title", content: "Entrar — CuentaClara" },
+      { property: "og:title", content: "Entrar — CUENTACLARA" },
       {
         property: "og:description",
         content: "Accede a tus solicitudes de crédito y tu cartera guardada.",
@@ -86,7 +86,7 @@ function Auth() {
   return (
     <AppShell>
       <section className="settle-in mx-auto max-w-md border border-line bg-card p-6 sm:p-8">
-        <p className="mb-2 text-sm text-ink-soft">CuentaClara</p>
+        <p className="mb-2 text-sm text-ink-soft">CUENTACLARA</p>
         <h1 className="font-display text-2xl font-bold">
           {modo === "entrar" ? "Entrar a tu cuenta" : "Crear cuenta"}
         </h1>
