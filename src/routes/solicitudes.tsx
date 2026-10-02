@@ -11,13 +11,13 @@ import { ESTADO_CLASES, formatoCOP, formatoPct, type EstadoSolicitud } from "@/l
 export const Route = createFileRoute("/solicitudes")({
   head: () => ({
     meta: [
-      { title: "Expedientes de solicitudes — CuentaClara" },
+      { title: "Expedientes de solicitudes — CUENTACLARA" },
       {
         name: "description",
         content:
           "Historial de simulaciones y solicitudes con estados Borrador, En Revisión, Aprobada y Rechazada, y su tabla de amortización.",
       },
-      { property: "og:title", content: "Expedientes de solicitudes — CuentaClara" },
+      { property: "og:title", content: "Expedientes de solicitudes — CUENTACLARA" },
       {
         property: "og:description",
         content: "Consulta, cambia el estado y revisa las cuotas de cada solicitud guardada.",

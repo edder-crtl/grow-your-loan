@@ -1,4 +1,4 @@
-# Credito Inteligente Colombia
+# CUENTACLARA — Simulador de crédito para pymes en Colombia
 
 Actúa como un diseñador senior experto en desarrollo de aplicaciones web
 
