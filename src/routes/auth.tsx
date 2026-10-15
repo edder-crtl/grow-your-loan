@@ -3,8 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
+import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/auth")({
@@ -72,8 +71,9 @@ function Auth() {
   }
 
   async function google() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+    const result = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin },
     });
     if (result.error) {
       toast.error("No se pudo iniciar sesión con Google");

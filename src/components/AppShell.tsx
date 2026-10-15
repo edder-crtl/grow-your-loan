@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Calculator, CircleUserRound, Files, Lightbulb, LogIn, PanelLeftClose, PanelLeftOpen, WalletCards } from "lucide-react";
 import { useState, type ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 
