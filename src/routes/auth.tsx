@@ -79,8 +79,6 @@ function Auth() {
       toast.error("No se pudo iniciar sesión con Google");
       return;
     }
-    if (result.redirected) return;
-    navigate({ to: "/" });
   }
 
   return (
