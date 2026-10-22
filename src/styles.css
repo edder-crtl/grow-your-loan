@@ -184,3 +184,59 @@
     outline-offset: 1px;
   }
 }
+
+/* Animación "dibujar hasta ser objeto": contorno primero, luego relleno y contenido. */
+.draw:not([class*="sticky"]):not([class*="fixed"]) {
+  position: relative;
+}
+.draw {
+  --draw-dur: 700ms;
+}
+.draw:not(.drawn):not(.drawn-now) {
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+.draw:not(.drawn):not(.drawn-now) > * {
+  opacity: 0;
+}
+.draw::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(var(--color-ink-soft), var(--color-ink-soft)) top left / 0 1px no-repeat,
+    linear-gradient(var(--color-ink-soft), var(--color-ink-soft)) top right / 1px 0 no-repeat,
+    linear-gradient(var(--color-ink-soft), var(--color-ink-soft)) bottom right / 0 1px no-repeat,
+    linear-gradient(var(--color-ink-soft), var(--color-ink-soft)) bottom left / 1px 0 no-repeat;
+  opacity: 0;
+}
+.drawn::after {
+  animation: draw-outline var(--draw-dur) ease-in-out var(--draw-delay, 0ms) both;
+}
+.drawn {
+  animation: draw-fill calc(var(--draw-dur) * 0.6) ease-out calc(var(--draw-delay, 0ms) + var(--draw-dur) * 0.6) both;
+}
+.drawn > * {
+  animation: settle calc(var(--draw-dur) * 0.5) ease-out calc(var(--draw-delay, 0ms) + var(--draw-dur) * 0.75) both;
+}
+html.draw-fast .draw {
+  --draw-dur: 160ms;
+  --draw-delay: 0ms !important;
+}
+@keyframes draw-outline {
+  0% { opacity: 1; background-size: 0 1px, 1px 0, 0 1px, 1px 0; }
+  25% { background-size: 100% 1px, 1px 0, 0 1px, 1px 0; }
+  50% { background-size: 100% 1px, 1px 100%, 0 1px, 1px 0; }
+  75% { background-size: 100% 1px, 1px 100%, 100% 1px, 1px 0; }
+  90% { opacity: 1; background-size: 100% 1px, 1px 100%, 100% 1px, 1px 100%; }
+  100% { opacity: 0; background-size: 100% 1px, 1px 100%, 100% 1px, 1px 100%; }
+}
+@keyframes draw-fill {
+  from { background-color: transparent; border-color: transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .draw:not(.drawn):not(.drawn-now) > * { opacity: 1; }
+  .draw::after { display: none; }
+}
