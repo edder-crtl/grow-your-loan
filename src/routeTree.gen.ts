@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CarteraRouteImport } from './routes/cartera'
 import { Route as ConsejosRouteImport } from './routes/consejos'
+import { Route as ConsultaRouteImport } from './routes/consulta'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as SolicitudesRouteImport } from './routes/solicitudes'
 
@@ -36,6 +37,11 @@ const ConsejosRoute = ConsejosRouteImport.update({
   path: '/consejos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConsultaRoute = ConsultaRouteImport.update({
+  id: '/consulta',
+  path: '/consulta',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PerfilRoute = PerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cartera': typeof CarteraRoute
   '/consejos': typeof ConsejosRoute
+  '/consulta': typeof ConsultaRoute
   '/perfil': typeof PerfilRoute
   '/solicitudes': typeof SolicitudesRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cartera': typeof CarteraRoute
   '/consejos': typeof ConsejosRoute
+  '/consulta': typeof ConsultaRoute
   '/perfil': typeof PerfilRoute
   '/solicitudes': typeof SolicitudesRoute
 }
@@ -69,21 +77,36 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cartera': typeof CarteraRoute
   '/consejos': typeof ConsejosRoute
+  '/consulta': typeof ConsultaRoute
   '/perfil': typeof PerfilRoute
   '/solicitudes': typeof SolicitudesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/cartera' | '/consejos' | '/perfil' | '/solicitudes'
+    | '/'
+    | '/auth'
+    | '/cartera'
+    | '/consejos'
+    | '/consulta'
+    | '/perfil'
+    | '/solicitudes'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/cartera' | '/consejos' | '/perfil' | '/solicitudes'
+  to:
+    | '/'
+    | '/auth'
+    | '/cartera'
+    | '/consejos'
+    | '/consulta'
+    | '/perfil'
+    | '/solicitudes'
   id:
     | '__root__'
     | '/'
     | '/auth'
     | '/cartera'
     | '/consejos'
+    | '/consulta'
     | '/perfil'
     | '/solicitudes'
   fileRoutesById: FileRoutesById
@@ -93,6 +116,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CarteraRoute: typeof CarteraRoute
   ConsejosRoute: typeof ConsejosRoute
+  ConsultaRoute: typeof ConsultaRoute
   PerfilRoute: typeof PerfilRoute
   SolicitudesRoute: typeof SolicitudesRoute
 }
@@ -127,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConsejosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/consulta': {
+      id: '/consulta'
+      path: '/consulta'
+      fullPath: '/consulta'
+      preLoaderRoute: typeof ConsultaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/perfil': {
       id: '/perfil'
       path: '/perfil'
@@ -149,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CarteraRoute: CarteraRoute,
   ConsejosRoute: ConsejosRoute,
+  ConsultaRoute: ConsultaRoute,
   PerfilRoute: PerfilRoute,
   SolicitudesRoute: SolicitudesRoute,
 }
