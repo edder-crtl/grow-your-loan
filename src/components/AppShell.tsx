@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Calculator, CircleUserRound, Files, Lightbulb, LogIn, PanelLeftClose, PanelLeftOpen, WalletCards } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
+import { useDrawIn } from "@/hooks/useDrawIn";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const [compacta, setCompacta] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
+  useDrawIn(mainRef, pathname);
   const iniciales = user?.email?.slice(0, 2).toUpperCase() ?? "MP";
 
   return (
@@ -80,7 +83,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           )}
         </header>
 
-        <main className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 md:px-8 md:py-10 lg:px-10">{children}</main>
+        <main ref={mainRef} className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 md:px-8 md:py-10 lg:px-10">{children}</main>
       </div>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-card/95 px-1 pb-[max(.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur md:hidden" aria-label="Navegación principal">
