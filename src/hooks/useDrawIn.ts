@@ -45,7 +45,7 @@ export function useDrawIn(root: RefObject<HTMLElement | null>, key: string) {
       el.querySelectorAll<HTMLElement>("section, article, header, form").forEach((n, i) => {
         if (n.classList.contains("draw")) return;
         n.classList.add("draw");
-        n.style.setProperty("--draw-delay", `${(i % 4) * 70}ms`);
+        n.style.setProperty("--draw-delay", `${(i % 4) * 120}ms`);
         io.observe(n);
       });
     };

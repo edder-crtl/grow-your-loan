@@ -190,7 +190,7 @@
   position: relative;
 }
 .draw {
-  --draw-dur: 700ms;
+  --draw-dur: 1300ms;
 }
 .draw:not(.drawn):not(.drawn-now) {
   background-color: transparent !important;
