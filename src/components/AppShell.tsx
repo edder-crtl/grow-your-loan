@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Calculator, CircleUserRound, Files, Lightbulb, LogIn, PanelLeftClose, PanelLeftOpen, Search, WalletCards } from "lucide-react";
+import { Calculator, CircleUserRound, Files, Landmark, Lightbulb, LogIn, PanelLeftClose, PanelLeftOpen, Search, WalletCards } from "lucide-react";
 import { useRef, useState, type ReactNode } from "react";
 import { useDrawIn } from "@/hooks/useDrawIn";
 import { supabase } from "@/lib/supabase";
@@ -12,6 +12,7 @@ const tabs = [
   { to: "/solicitudes", label: "Solicitudes", icon: Files },
   { to: "/consejos", label: "Consejos", icon: Lightbulb },
   { to: "/consulta", label: "Consulta", icon: Search },
+  { to: "/tasas", label: "Tasas", icon: Landmark },
   { to: "/perfil", label: "Perfil", icon: CircleUserRound },
 ] as const;
 
@@ -87,7 +88,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main ref={mainRef} className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 md:px-8 md:py-10 lg:px-10">{children}</main>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-line bg-card/95 px-1 pb-[max(.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur md:hidden" aria-label="Navegación principal">
+      <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-7 border-t border-line bg-card/95 px-1 pb-[max(.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur md:hidden" aria-label="Navegación principal">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const activa = pathname === tab.to;
