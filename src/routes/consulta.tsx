@@ -28,7 +28,7 @@ async function leerPdf(file: File): Promise<string> {
     const c = await (await doc.getPage(i)).getTextContent();
     const porY = new Map<number, string[]>();
     for (const it of c.items as { str: string; transform: number[] }[]) {
-      const y = Math.round(it.transform[5]);
+      const y = Math.round(it.transform[5] ?? 0);
       porY.set(y, [...(porY.get(y) ?? []), it.str]);
     }
     lineas.push(...[...porY.values()].map((p) => p.join(" ")));
