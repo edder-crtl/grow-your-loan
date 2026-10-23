@@ -16,6 +16,7 @@ import { Route as ConsejosRouteImport } from './routes/consejos'
 import { Route as ConsultaRouteImport } from './routes/consulta'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as SolicitudesRouteImport } from './routes/solicitudes'
+import { Route as TasasRouteImport } from './routes/tasas'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +53,11 @@ const SolicitudesRoute = SolicitudesRouteImport.update({
   path: '/solicitudes',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TasasRoute = TasasRouteImport.update({
+  id: '/tasas',
+  path: '/tasas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/consulta': typeof ConsultaRoute
   '/perfil': typeof PerfilRoute
   '/solicitudes': typeof SolicitudesRoute
+  '/tasas': typeof TasasRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/consulta': typeof ConsultaRoute
   '/perfil': typeof PerfilRoute
   '/solicitudes': typeof SolicitudesRoute
+  '/tasas': typeof TasasRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/consulta': typeof ConsultaRoute
   '/perfil': typeof PerfilRoute
   '/solicitudes': typeof SolicitudesRoute
+  '/tasas': typeof TasasRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/consulta'
     | '/perfil'
     | '/solicitudes'
+    | '/tasas'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/consulta'
     | '/perfil'
     | '/solicitudes'
+    | '/tasas'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/consulta'
     | '/perfil'
     | '/solicitudes'
+    | '/tasas'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   ConsultaRoute: typeof ConsultaRoute
   PerfilRoute: typeof PerfilRoute
   SolicitudesRoute: typeof SolicitudesRoute
+  TasasRoute: typeof TasasRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SolicitudesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tasas': {
+      id: '/tasas'
+      path: '/tasas'
+      fullPath: '/tasas'
+      preLoaderRoute: typeof TasasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConsultaRoute: ConsultaRoute,
   PerfilRoute: PerfilRoute,
   SolicitudesRoute: SolicitudesRoute,
+  TasasRoute: TasasRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
