@@ -24,7 +24,7 @@ export function extraerObligaciones(texto: string): Obligacion[] {
   for (const linea of texto.split(/\n+/)) {
     const montos = linea.match(/\$\s?[\d.,]{4,}/g);
     if (!montos || montos.length === 0) continue;
-    const entidad = linea.split("$")[0].replace(/[|:;-]+$/, "").trim().slice(0, 40) || "Entidad";
+    const entidad = (linea.split("$")[0] ?? "").replace(/[|:;-]+$/, "").trim().slice(0, 40) || "Entidad";
     const mora = linea.match(/(\d{1,3})\s*d[ií]as/i);
     const tipo = /tarjeta/i.test(linea) ? "Tarjeta de crédito" : /micro/i.test(linea) ? "Microcrédito" : /veh/i.test(linea) ? "Vehículo" : "Consumo";
     res.push({
