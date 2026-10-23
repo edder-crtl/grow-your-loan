@@ -8,5 +8,5 @@
 
 ## Consulta pública (base personal)
 - [x] Crear sección Consulta en la app con búsqueda y tarjetas de personas.
-- [ ] Usuario ejecuta cuentaclara-consulta-publica.sql en su Supabase para crear la tabla.
-- [ ] Verificar que la consulta lea datos reales de la base.
+- [x] Usuario ejecuta cuentaclara-consulta-publica.sql en su base personal para crear la tabla.
+- [x] Verificar que Consulta lea los 3 registros de ejemplo de la base personal y que la búsqueda funcione.
