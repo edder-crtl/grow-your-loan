@@ -1,180 +1,179 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Search } from "lucide-react";
+import { useState } from "react";
+import { FileUp, ShieldCheck, Sparkles, Lock } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
-import { supabase } from "@/lib/supabase";
 import { formatoCOP } from "@/lib/finanzas";
+import { diagnosticar, extraerObligaciones, REPORTE_EJEMPLO, type Obligacion } from "@/lib/historial";
 
 export const Route = createFileRoute("/consulta")({
   head: () => ({
     meta: [
-      { title: "Consulta pública — CUENTACLARA" },
-      {
-        name: "description",
-        content:
-          "Consulta pública de personas: centrales de riesgo, reportes, score y testimonios. Datos informativos.",
-      },
-      { property: "og:title", content: "Consulta pública — CUENTACLARA" },
-      {
-        property: "og:description",
-        content: "Busca el registro de una persona y revisa sus reportes y score.",
-      },
+      { title: "Mi historial — CUENTACLARA" },
+      { name: "description", content: "Sube tu reporte gratuito de Midatacrédito o tu extracto y recibe tu diagnóstico financiero privado." },
+      { property: "og:title", content: "Mi historial — CUENTACLARA" },
+      { property: "og:description", content: "Entiende tu reporte de crédito en segundos, sin que tus datos salgan de tu celular." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: Consulta,
+  component: MiHistorial,
 });
 
-interface PersonaPublica {
-  id: string;
-  nombre: string;
-  documento: string | null;
-  ciudad: string | null;
-  ocupacion: string | null;
-  edad: number | null;
-  centrales_riesgo: string | null;
-  tiene_reporte: boolean;
-  reportes: string | null;
-  score: number | null;
-  deuda_reportada: number | null;
-  testimonio: string | null;
+async function leerPdf(file: File): Promise<string> {
+  const pdfjs = await import("pdfjs-dist");
+  pdfjs.GlobalWorkerOptions.workerSrc = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
+  const doc = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
+  const lineas: string[] = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    const c = await (await doc.getPage(i)).getTextContent();
+    const porY = new Map<number, string[]>();
+    for (const it of c.items as { str: string; transform: number[] }[]) {
+      const y = Math.round(it.transform[5]);
+      porY.set(y, [...(porY.get(y) ?? []), it.str]);
+    }
+    lineas.push(...[...porY.values()].map((p) => p.join(" ")));
+  }
+  return lineas.join("\n");
 }
 
-function Consulta() {
-  const [busqueda, setBusqueda] = useState("");
+function MiHistorial() {
+  const [obligaciones, setObligaciones] = useState<Obligacion[] | null>(null);
+  const [ingreso, setIngreso] = useState(3_000_000);
+  const [cargando, setCargando] = useState(false);
+  const [aviso, setAviso] = useState("");
+  const [arrastrando, setArrastrando] = useState(false);
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["personas_publicas"],
-    queryFn: async () => {
-      // Tabla en la base personal del usuario; aún no está en los tipos generados.
-      const { data, error } = await (
-        supabase as unknown as {
-          from: (t: string) => {
-            select: (c: string) => {
-              order: (
-                c: string,
-                o: { ascending: boolean },
-              ) => PromiseLike<{ data: PersonaPublica[] | null; error: { message: string } | null }>;
-            };
-          };
-        }
-      )
-        .from("personas_publicas")
-        .select("*")
-        .order("nombre", { ascending: true });
-      if (error) throw new Error(error.message);
-      return data ?? [];
-    },
-  });
+  const procesar = async (file: File) => {
+    setCargando(true);
+    setAviso("");
+    try {
+      const texto = file.type === "application/pdf" ? await leerPdf(file) : await file.text();
+      const o = extraerObligaciones(texto);
+      if (o.length === 0) setAviso("No encontramos deudas con montos en ese archivo. Prueba con el reporte de ejemplo.");
+      setObligaciones(o);
+    } catch {
+      setAviso("No pudimos leer el archivo. Asegúrate de que sea un PDF con texto (no una foto).");
+    } finally {
+      setCargando(false);
+    }
+  };
 
-  const personas = data ?? [];
-  const filtradas = useMemo(() => {
-    const q = busqueda.trim().toLowerCase();
-    if (!q) return personas;
-    return personas.filter((p) =>
-      [p.nombre, p.documento, p.ciudad, p.ocupacion]
-        .filter(Boolean)
-        .some((campo) => String(campo).toLowerCase().includes(q)),
-    );
-  }, [personas, busqueda]);
+  const d = obligaciones ? diagnosticar(obligaciones, ingreso) : null;
+  const color = d?.nivel === "Excelente" ? "text-ok" : d?.nivel === "Aceptable" ? "text-warn" : "text-bad";
+  const angulo = d ? ((d.puntaje - 300) / 550) * 180 : 0;
 
   return (
     <AppShell>
-      <header>
-        <p className="mb-2 text-sm text-ink-soft">Datos / Consulta pública</p>
-        <h1 className="font-display text-2xl font-bold sm:text-3xl">Consulta pública</h1>
-        <p className="mt-2 max-w-2xl text-sm text-ink-soft">
-          Busca a una persona por nombre, documento o ciudad y revisa su información pública:
-          centrales de riesgo, reportes, score y testimonios.
+      <header className="relative overflow-hidden rounded-xl bg-ink p-6 text-paper sm:p-8">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-paper/10 px-3 py-1 font-mono text-[11px] uppercase tracking-wider">
+          <Sparkles className="size-3.5" /> Diagnóstico privado
+        </span>
+        <h1 className="mt-4 font-display text-2xl font-bold sm:text-4xl">Entiende tu historial de crédito en segundos</h1>
+        <p className="mt-3 max-w-2xl text-sm text-paper/75 sm:text-base">
+          Descarga gratis tu reporte en Midatacrédito o el extracto de tu banco, súbelo aquí y te
+          decimos cómo estás y qué hacer para mejorar.
+        </p>
+        <p className="mt-4 inline-flex items-center gap-2 font-mono text-xs text-paper/70">
+          <Lock className="size-3.5" /> Tu archivo se lee solo en tu dispositivo. No lo guardamos.
         </p>
       </header>
 
-      <label className="block">
-        <span className="text-xs font-semibold">Buscar persona</span>
-        <div className="relative mt-1.5">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-soft" />
-          <input
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            placeholder="Nombre, documento o ciudad"
-            className="h-11 w-full rounded-md border border-line bg-paper pl-9 pr-3 text-sm outline-none focus:border-accent"
-          />
+      <section className="grid gap-4 lg:grid-cols-[1fr_280px]">
+        <label
+          onDragOver={(e) => { e.preventDefault(); setArrastrando(true); }}
+          onDragLeave={() => setArrastrando(false)}
+          onDrop={(e) => { e.preventDefault(); setArrastrando(false); const f = e.dataTransfer.files[0]; if (f) procesar(f); }}
+          className={`flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition ${
+            arrastrando ? "border-accent bg-accent/5" : "border-line bg-card hover:border-accent"
+          }`}
+        >
+          <FileUp className="size-9 text-accent" />
+          <span className="font-display font-bold">{cargando ? "Leyendo tu archivo…" : "Arrastra tu PDF o toca para elegirlo"}</span>
+          <span className="text-xs text-ink-soft">Reporte de Midatacrédito, TransUnion o extracto bancario</span>
+          <input type="file" accept=".pdf,.txt" className="sr-only" onChange={(e) => e.target.files?.[0] && procesar(e.target.files[0])} />
+        </label>
+        <div className="flex flex-col gap-3 rounded-xl border border-line bg-card p-5">
+          <label className="text-xs font-semibold">
+            ¿Cuánto te entra al mes?
+            <input
+              type="number"
+              value={ingreso}
+              onChange={(e) => setIngreso(Number(e.target.value))}
+              className="mt-1.5 h-11 w-full rounded-md border border-line bg-paper px-3 font-mono text-sm outline-none focus:border-accent"
+            />
+          </label>
+          <button
+            onClick={() => { setAviso(""); setObligaciones(extraerObligaciones(REPORTE_EJEMPLO)); }}
+            className="h-11 rounded-md bg-accent font-bold text-accent-foreground"
+          >
+            Ver reporte de ejemplo
+          </button>
         </div>
-      </label>
+      </section>
 
-      {isLoading && <p className="text-sm text-ink-soft">Cargando registros…</p>}
-      {isError && (
-        <p className="border border-line bg-card p-5 text-sm">
-          No se pudo consultar la base todavía. Asegúrate de haber ejecutado el archivo SQL en tu
-          Supabase (SQL Editor → Run) y recarga esta página.
-        </p>
-      )}
+      {aviso && <p className="rounded-lg border border-line bg-card p-4 text-sm">{aviso}</p>}
 
-      {!isLoading && !isError && filtradas.length === 0 && (
-        <p className="border border-line bg-card p-5 text-sm">
-          {personas.length === 0
-            ? "Todavía no hay registros en la base pública."
-            : "No hay personas que coincidan con esa búsqueda."}
-        </p>
-      )}
-
-      <div className="grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {filtradas.map((p) => (
-          <article key={p.id} className="settle-in border border-line bg-card p-5">
-            <div className="flex flex-wrap items-start justify-between gap-2">
-              <div className="min-w-0">
-                <h2 className="font-display text-base font-bold">{p.nombre}</h2>
-                <p className="mt-0.5 font-mono text-[11px] text-ink-soft">
-                  {[p.documento, p.ciudad].filter(Boolean).join(" · ") || "Sin datos de ubicación"}
-                </p>
-              </div>
-              <span
-                className={`rounded-md px-2 py-1 font-mono text-[10px] font-bold uppercase ${
-                  p.tiene_reporte ? "bg-accent text-paper" : "bg-accent-2/15 text-accent-2"
-                }`}
-              >
-                {p.tiene_reporte ? "Con reporte" : "Sin reportes"}
-              </span>
-            </div>
-
-            <dl className="mt-4 space-y-2 text-sm">
+      {d && obligaciones && obligaciones.length > 0 && (
+        <>
+          <section className="grid gap-4 md:grid-cols-[300px_1fr]">
+            <article className="settle-in rounded-xl border border-line bg-card p-6 text-center">
+              <p className="font-mono text-xs uppercase text-ink-soft">Tu puntaje estimado</p>
+              <svg viewBox="0 0 200 110" className="mx-auto mt-3 w-full max-w-[220px]">
+                <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="var(--line)" strokeWidth="14" strokeLinecap="round" />
+                <path d="M20 100 A80 80 0 0 1 180 100" fill="none" stroke="currentColor" strokeWidth="14" strokeLinecap="round"
+                  className={`${color} transition-all duration-1000`} pathLength={180} strokeDasharray={`${angulo} 180`} />
+              </svg>
+              <p className={`-mt-10 font-display text-4xl font-bold ${color}`}>{d.puntaje}</p>
+              <p className={`mt-1 font-bold ${color}`}>{d.nivel}</p>
+              <p className="mt-2 text-[11px] text-ink-soft">Escala 300–850. Es una estimación, no tu puntaje oficial.</p>
+            </article>
+            <div className="grid gap-4 sm:grid-cols-3">
               {[
-                ["Ocupación", p.ocupacion],
-                ["Edad", p.edad ? `${p.edad} años` : null],
-                ["Centrales de riesgo", p.centrales_riesgo],
-                ["Score", p.score ? String(p.score) : null],
-                [
-                  "Deuda reportada",
-                  p.deuda_reportada && p.deuda_reportada > 0 ? formatoCOP(Number(p.deuda_reportada)) : "$0",
-                ],
-                ["Reportes", p.reportes],
-              ]
-                .filter(([, v]) => v !== null && v !== undefined && String(v).trim() !== "")
-                .map(([k, v]) => (
-                  <div key={k as string} className="flex justify-between gap-3 border-b border-line pb-2 last:border-0">
-                    <dt className="shrink-0 text-xs text-ink-soft">{k}</dt>
-                    <dd className="text-right font-medium">{v}</dd>
-                  </div>
-                ))}
-            </dl>
+                ["Lo que debes", formatoCOP(d.totalDeuda)],
+                ["Pagas al mes", formatoCOP(d.totalCuotas)],
+                ["De tu ingreso", `${Math.round(d.porcentajeIngreso * 100)}%`],
+              ].map(([k, v]) => (
+                <article key={k} className="rounded-xl border border-line bg-card p-5">
+                  <p className="text-xs text-ink-soft">{k}</p>
+                  <p className="mt-2 font-display text-xl font-bold">{v}</p>
+                </article>
+              ))}
+              <article className="rounded-xl border border-line bg-card p-5 sm:col-span-3">
+                <h2 className="font-display font-bold">Tus deudas</h2>
+                <ul className="mt-3 divide-y divide-line text-sm">
+                  {obligaciones.map((o, i) => (
+                    <li key={i} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                      <span className="min-w-0"><b>{o.entidad}</b> <span className="text-ink-soft">· {o.tipo}</span></span>
+                      <span className="font-mono text-xs">{formatoCOP(o.cuota)}/mes</span>
+                      <span className={`rounded px-2 py-0.5 font-mono text-[10px] font-bold uppercase ${o.diasMora ? "bg-bad/15 text-bad" : "bg-ok/15 text-ok"}`}>
+                        {o.diasMora ? `${o.diasMora} días en mora` : "Al día"}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            </div>
+          </section>
 
-            {p.testimonio && (
-              <blockquote className="mt-4 border-l-2 border-accent-2 pl-3 text-sm text-ink-soft">
-                “{p.testimonio}”
-              </blockquote>
-            )}
-          </article>
-        ))}
-      </div>
+          <section className="rounded-xl border border-line bg-card p-6">
+            <h2 className="font-display text-lg font-bold">Tu plan para mejorar</h2>
+            <ol className="mt-4 space-y-3">
+              {d.acciones.map((a, i) => (
+                <li key={i} className="flex gap-3 text-sm">
+                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-accent font-mono text-xs font-bold text-accent-foreground">{i + 1}</span>
+                  <span className="pt-1">{a}</span>
+                </li>
+              ))}
+            </ol>
+            <Link to="/" className="mt-5 inline-block font-bold text-accent">Simular un crédito con estos datos →</Link>
+          </section>
+        </>
+      )}
 
-      <p className="text-xs text-ink-soft">
-        Estos registros son informativos y de ejemplo. Los datos reales de centrales de riesgo
-        (Datacrédito, TransUnion) solo se pueden consultar con autorización de cada persona.{" "}
-        <Link to="/" className="font-bold text-accent">
-          Simular un crédito
-        </Link>
+      <p className="flex gap-2 text-xs text-ink-soft">
+        <ShieldCheck className="size-4 shrink-0" />
+        Por la Ley de Hábeas Data (1266 de 2008), nadie puede consultar tu historial sin tu permiso.
+        Por eso CUENTACLARA no busca datos de otras personas: solo analiza el reporte que tú mismo descargas gratis.
       </p>
     </AppShell>
   );

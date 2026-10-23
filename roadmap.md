@@ -6,7 +6,7 @@
 - [x] Integrar Consejos en la navegación adaptable.
 - [x] Verificar computador, celular y estado de compilación.
 
-## Consulta pública (base personal)
+## Mi historial (diagnóstico privado con PDF propio) (base personal)
 - [x] Crear sección Consulta en la app con búsqueda y tarjetas de personas.
 - [x] Usuario ejecuta cuentaclara-consulta-publica.sql en su base personal para crear la tabla.
 - [x] Verificar que Consulta lea los 3 registros de ejemplo de la base personal y que la búsqueda funcione.
