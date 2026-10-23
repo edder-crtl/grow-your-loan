@@ -110,7 +110,7 @@ function Tasas() {
                 <p className="flex items-center gap-2 truncate font-semibold"><Landmark className="size-4 shrink-0 text-ink-soft" />{f.banco}</p>
                 <p className="text-xs text-ink-soft">{f.creditos.toLocaleString("es-CO")} créditos desembolsados</p>
               </div>
-              <span className={`font-mono font-bold ${f.tasa <= promedio ? "text-positive" : "text-accent"}`}>{f.tasa.toFixed(2)}%</span>
+              <span className={`font-mono font-bold ${f.tasa <= promedio ? "text-ok" : "text-bad"}`}>{f.tasa.toFixed(2)}%</span>
             </li>
           ))}
         </ul>
