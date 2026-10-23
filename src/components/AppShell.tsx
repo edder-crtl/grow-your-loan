@@ -11,7 +11,7 @@ const tabs = [
   { to: "/cartera", label: "Cartera", icon: WalletCards },
   { to: "/solicitudes", label: "Solicitudes", icon: Files },
   { to: "/consejos", label: "Consejos", icon: Lightbulb },
-  { to: "/consulta", label: "Consulta", icon: Search },
+  { to: "/consulta", label: "Mi historial", icon: Search },
   { to: "/tasas", label: "Tasas", icon: Landmark },
   { to: "/perfil", label: "Perfil", icon: CircleUserRound },
 ] as const;
